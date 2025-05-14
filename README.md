@@ -1,6 +1,3 @@
-Absolutely! Here’s a clear and concise README for your NewsScrapper project, covering the **project motive**, **structure**, and **build/run instructions** for all components.
-
----
 
 # NewsScrapper
 
