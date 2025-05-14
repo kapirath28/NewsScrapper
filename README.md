@@ -100,4 +100,3 @@ npm run dev
 ---
 
 **Enjoy building and experimenting with NewsScrapper!**  
-If you need more details or want to extend the project, just ask!
