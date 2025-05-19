@@ -1,16 +1,10 @@
-<<<<<<< HEAD
 import { Routes, Route, NavLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './App.css';
 import { io } from 'socket.io-client';
 import { v4 as uuid } from 'uuid';
 import { motion } from 'framer-motion';
-=======
-import { useEffect, useState, useRef } from 'react'
-import './App.css';
-import {io} from 'socket.io-client'
 import NewsContainer from './components/NewsContainer';
->>>>>>> 4f6186de376bb82c4d3dc40c0137d77f0ab45a7f
 
 // Pages
 function Home() {
@@ -23,85 +17,6 @@ function Home() {
     socket.on('getNews', (news) => {
       setNews(news);
       setLoading(false);
-<<<<<<< HEAD
-    });
-    socket.on('error', (error) => {
-      setError(error);
-      setLoading(false);
-    });
-    return () => socket.disconnect();
-  }, []);
-
-  if (error) {
-    return (
-      <div className="error-container">
-        <h2>Error Loading News</h2>
-        <p>{error.message}</p>
-      </div>
-    );
-  }
-
-  return (
-    <motion.div className="news-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <header className="app-header">
-        <h1>Latest News</h1>
-        <p className="subtitle">Stay updated with the latest headlines</p>
-      </header>
-      {loading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading latest news...</p>
-        </div>
-      ) : (
-        <div className="news-grid">
-          {Array.isArray(news) && news.length > 0 ? (
-            news.map((article) => (
-              <article key={uuid()} className="news-card">
-                <div className="news-image-container">
-                  {article.image_url ? (
-                    <img
-                      src={article.image_url}
-                      alt={article.title}
-                      className="news-image"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
-                      }}
-                    />
-                  ) : (
-                    <div className="no-image">No Image Available</div>
-                  )}
-                </div>
-                <div className="news-content">
-                  <h2 className="news-title">{article.title}</h2>
-                  <p className="news-description">{article.description}</p>
-                  <div className="news-meta">
-                    <span className="news-source">{article.source_id}</span>
-                    <span className="news-date">
-                      {new Date(article.pubDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <a
-                    href={article.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="read-more"
-                  >
-                    Read More
-                  </a>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="no-news">
-              <h2>No News Available</h2>
-              <p>Please try again later</p>
-            </div>
-          )}
-        </div>
-      )}
-    </motion.div>
-  );
-=======
     })
     return () => {
       socket.disconnect()
@@ -115,9 +30,7 @@ function Home() {
   <NewsContainer news={news} Genre={"Politics !!!"}/>
   <NewsContainer news={news} Genre={"Technology !!!"}/>
   <NewsContainer news={news} Genre={"Entertainment !!!"}/>
-
   </>
->>>>>>> 4f6186de376bb82c4d3dc40c0137d77f0ab45a7f
 }
 
 function Profile() {
