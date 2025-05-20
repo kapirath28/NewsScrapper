@@ -1,10 +1,14 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css';
 import {io} from 'socket.io-client'
 import NewsContainer from './components/NewsContainer';
 
-function App() {
-  const [news, setNews] = useState([]);
+function App({ searchTerm }) {
+  const [news, setNews] = useState({
+    politics: [],
+    technology: [],
+    entertainment: []
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,14 +22,25 @@ function App() {
     }
   }, [])
 
+  const filteredNews = {
+    politics: searchTerm ? news.politics.filter(item => 
+      item.category.toLowerCase() === searchTerm.toLowerCase()
+    ) : news.politics,
+    technology: searchTerm ? news.technology.filter(item => 
+      item.category.toLowerCase() === searchTerm.toLowerCase()
+    ) : news.technology,
+    entertainment: searchTerm ? news.entertainment.filter(item => 
+      item.category.toLowerCase() === searchTerm.toLowerCase()
+    ) : news.entertainment
+  };
+
   return <>
   {
     loading ? <div style={{background : "transparent"}}><img src = {"Loading.svg"}/></div> : null
   }
-  <NewsContainer news={news} Genre={"Politics !!!"}/>
-  <NewsContainer news={news} Genre={"Technology !!!"}/>
-  <NewsContainer news={news} Genre={"Entertainment !!!"}/>
-
+  {filteredNews.politics.length > 0 && <NewsContainer news={filteredNews.politics} Genre={"Politics !!!"}/>}
+  {filteredNews.technology.length > 0 && <NewsContainer news={filteredNews.technology} Genre={"Technology !!!"}/>}
+  {filteredNews.entertainment.length > 0 && <NewsContainer news={filteredNews.entertainment} Genre={"Entertainment !!!"}/>}
   </>
 }
 
