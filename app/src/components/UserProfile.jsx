@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiTrendingUp, FiBookmark, FiAward, FiBarChart2, FiFlag } from 'react-icons/fi';
+import { FiTrendingUp, FiBookmark, FiAward, FiBarChart2, FiFlag, FiLogOut } from 'react-icons/fi';
 import { SoundManager } from '../utils/sounds';
 import WeatherWidget from './WeatherWidget';
 
@@ -35,7 +35,7 @@ const AVATAR_ITEMS = {
   FINANCE: { name: 'Money Headband 💸', requirement: 25 }
 };
 
-export default function UserProfile({ user }) {
+export default function UserProfile({ user, onLogout }) {
   const [personality, setPersonality] = useState(null);
   const [newsStats, setNewsStats] = useState({
     politics: 30,
@@ -87,6 +87,11 @@ export default function UserProfile({ user }) {
     setHotTakes([{ text: take, likes: 0 }, ...hotTakes]);
   };
 
+  const handleLogout = () => {
+    SoundManager.play(SoundManager.Sounds.POP);
+    onLogout();
+  };
+
   return (
     <div className={`user-profile-container theme-${selectedTheme}`}>
       {/* Profile Header */}
@@ -105,6 +110,10 @@ export default function UserProfile({ user }) {
         
         <div className="profile-info">
           <h1>{user.username}</h1>
+          <p className="user-email">{user.email}</p>
+          <button onClick={handleLogout} className="logout-button">
+            <FiLogOut /> Logout
+          </button>
           <div className="personality-badge">
             <h2>{PERSONALITIES[personality]?.title}</h2>
             <p>{PERSONALITIES[personality]?.description}</p>
