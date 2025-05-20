@@ -9,6 +9,7 @@ import ThemeToggle from './components/ThemeToggle';
 import SoundToggle from './components/SoundToggle';
 import UserProfile from './components/UserProfile';
 import GlobalWeather from './components/GlobalWeather';
+import { isAuthenticated, handleAuthentication, logout, getUser, getAuthHeader } from './utils/auth';
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 console.log('API Key loaded:', GROQ_API_KEY ? 'Yes' : 'No');
@@ -135,11 +136,11 @@ function Home({ genre }) {
 }
 
 function Profile() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated);
   const [showSignup, setShowSignup] = useState(false);
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(getUser);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -148,54 +149,75 @@ function Profile() {
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setError('');
-    if (type === 'signup') {
-      // Sign up: POST /api/user/profile
-      try {
-        const res = await fetch('http://localhost:8081/api/user/profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+    try {
+      const endpoint = type === 'signup' 
+        ? 'http://localhost:8081/api/user/profile'
+        : 'http://localhost:8081/api/user/login';
+      
+      const body = type === 'signup'
+        ? {
             username: formData.username,
             email: formData.email,
             password: formData.password
-          })
-        });
-        if (!res.ok) {
-          throw new Error('Sign up failed');
-        }
-        const data = await res.json();
-        setUser(data);
-        setIsLoggedIn(true);
-      } catch (err) {
-        setError('Sign up failed. Try a different email.');
-      }
-    } else {
-      // Sign in: POST /api/user/login
-      try {
-        const res = await fetch('http://localhost:8081/api/user/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          }
+        : {
             email: formData.email,
             password: formData.password
-          })
-        });
-        if (!res.ok) {
-          throw new Error('Invalid credentials');
-        }
-        const data = await res.json();
-        setUser(data);
-        setIsLoggedIn(true);
-      } catch (err) {
-        setError('Invalid email or password.');
+          };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || `${type} failed`);
       }
+
+      const data = await res.json();
+      handleAuthentication(data);
+      setUser(data.user);
+      setIsLoggedIn(true);
+    } catch (err) {
+      setError(err.message || `${type === 'signup' ? 'Sign up' : 'Sign in'} failed`);
     }
   };
 
-  if (isLoggedIn) {
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+    setIsLoggedIn(false);
+    setFormData({ username: '', email: '', password: '' });
+  };
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const headers = getAuthHeader();
+      fetch('http://localhost:8081/api/user/profile/' + getUser().id, {
+        headers
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Invalid token');
+        }
+        return res.json();
+      })
+      .then(userData => {
+        setUser(userData);
+        setIsLoggedIn(true);
+      })
+      .catch(() => {
+        handleLogout();
+      });
+    }
+  }, []);
+
+  if (isLoggedIn && user) {
     return (
       <div className="profile-page centered">
-        <UserProfile user={user} />
+        <UserProfile user={user} onLogout={handleLogout} />
       </div>
     );
   }
