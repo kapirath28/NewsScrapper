@@ -1,22 +1,15 @@
-import { StrictMode, useState } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import Navbar from './components/Navbar.jsx'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
+import './App.css'
+import '@fontsource/inter/400.css';
+import '@fontsource/poppins/700.css';
 
-function Main() {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-  };
-
-  return (
-    <StrictMode>
-      <Navbar onSearch={handleSearch} />
-      <App searchTerm={searchTerm} />
-    </StrictMode>
-  );
-}
-
-createRoot(document.getElementById('root')).render(<Main />)
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+)

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -87,5 +88,19 @@ public class UserController {
             return ResponseEntity.notFound().build();
         savedNewsRepository.deleteByUserAndNewsId(userOpt.get(), newsId);
         return ResponseEntity.ok().build();
+    }
+
+    // Add login endpoint
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
+            User user = userOpt.get();
+            user.setPassword(null); // Remove password before sending
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.status(401).build();
     }
 }

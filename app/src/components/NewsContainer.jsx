@@ -32,7 +32,27 @@ export default function NewsContainer({news, Genre}){
         className="news-scroll d-flex gap-3"
         ref={scrollRef}
       >
-        <Newscard news={news}/>
+        {news.map((n, index) => (
+          <div
+            key={index}
+            className="card"
+            style={{ width: "20%", minWidth: "200px", flexShrink: 0 }}
+          >
+            {n.image_url && (
+              <img 
+                src={n.image_url} 
+                className="card-img-top" 
+                alt="news"
+                onError={(e) => {
+                  e.target.src = 'https://placehold.co/400x300/333333/FFFFFF/png?text=No+Image';
+                }}
+              />
+            )}
+            <div className="card-body">
+              <p className="card-text">{n.title}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
 }

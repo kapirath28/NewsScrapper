@@ -1,0 +1,115 @@
+.weather-widget {
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: rgba(25, 25, 25, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.weather-widget:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 0, 255, 0.2),
+    0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.weather-icon {
+  font-size: 2.5rem;
+  color: var(--theme-accent, #ff00ff);
+  animation: float 3s ease-in-out infinite;
+}
+
+.weather-temp {
+  display: flex;
+  align-items: baseline;
+}
+
+.temp-number {
+  font-size: 3rem;
+  font-weight: bold;
+  background: var(--theme-gradient, linear-gradient(90deg, #ff00ff, #00ffff));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.temp-unit {
+  font-size: 1.2rem;
+  margin-left: 0.2rem;
+  opacity: 0.7;
+}
+
+.weather-details {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.weather-location {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.weather-description {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.weather-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.loading-pulse {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.weather-widget.error {
+  background: rgba(255, 0, 0, 0.1);
+  text-align: center;
+  padding: 2rem;
+}
+
+.weather-widget.error p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+} 
