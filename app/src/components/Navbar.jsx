@@ -1,5 +1,4 @@
-import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const GENRES = [
   'All',
@@ -13,44 +12,34 @@ const GENRES = [
 ];
 
 export default function Navbar({ genre, onGenreChange }) {
-    const [dark, setDark] = useState(false);
-    // Toggle dark mode by adding/removing a class on body
-    const toggleDark = () => {
-        setDark((d) => {
-            document.body.classList.toggle('dark-mode', !d);
-            return !d;
-        });
-    };
-    return (
-        <header className="navbar-header">
-            <nav className="navbar classic-navbar">
-                <div className="nav-container">
-                    <NavLink to="/" className="nav-logo">
-                        <span>RealKhabr</span>
-                    </NavLink>
-                    <div className="nav-links">
-                        <select
-                          className="genre-select"
-                          value={genre}
-                          onChange={e => onGenreChange(e.target.value)}
-                          aria-label="Choose news genre"
-                        >
-                          {GENRES.map(g => (
-                            <option key={g} value={g}>{g}</option>
-                          ))}
-                        </select>
-                        <NavLink to="/" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-                            Home
-                        </NavLink>
-                        <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-                            Profile
-                        </NavLink>
-                        <button className="mode-toggle" onClick={toggleDark} aria-label="Toggle dark mode">
-                            {dark ? '🌙' : '☀️'}
-                        </button>
-                    </div>
-                </div>
-            </nav>
-        </header>
-    );
+  return (
+    <nav className="navbar">
+      <div className="nav-content">
+        <Link to="/" className="nav-logo">RealKhabr</Link>
+        <div className="nav-center">
+          <div className="genre-container">
+            <select 
+              value={genre} 
+              onChange={(e) => onGenreChange(e.target.value)}
+              className="genre-select"
+            >
+              <option value="All">All</option>
+              <option value="Politics">Politics</option>
+              <option value="Technology">Technology</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Sports">Sports</option>
+              <option value="Business">Business</option>
+              <option value="Health">Health</option>
+              <option value="Science">Science</option>
+            </select>
+            <div className="genre-backdrop"></div>
+          </div>
+        </div>
+        <div className="nav-right">
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/profile" className="nav-link">Profile</Link>
+        </div>
+      </div>
+    </nav>
+  );
 }

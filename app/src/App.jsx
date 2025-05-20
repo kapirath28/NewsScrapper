@@ -4,8 +4,14 @@ import './App.css';
 import { io } from 'socket.io-client';
 import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
+import NewsCard from './components/NewsCard';
+import ThemeToggle from './components/ThemeToggle';
+import SoundToggle from './components/SoundToggle';
+import UserProfile from './components/UserProfile';
+import GlobalWeather from './components/GlobalWeather';
 
-const GROQ_API_KEY = "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";
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+console.log('API Key loaded:', GROQ_API_KEY ? 'Yes' : 'No');
 
 const GENRES = [
   'All',
@@ -27,6 +33,7 @@ function Home({ genre }) {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [isSoundMuted, setIsSoundMuted] = useState(false);
 
   useEffect(() => {
     const socket = io('http://localhost:3000/');
@@ -52,6 +59,7 @@ function Home({ genre }) {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${GROQ_API_KEY}`,
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
           model: 'mixtral-8x7b-32768',
@@ -60,11 +68,17 @@ function Home({ genre }) {
             { role: 'user', content: `Search news: ${query}` },
           ],
           max_tokens: 1024,
+          temperature: 0.7
         }),
       });
-      if (!res.ok) throw new Error('Groq AI search failed');
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Groq API Error:', errorData);
+        throw new Error(errorData.error?.message || 'Groq AI search failed');
+      }
+      
       const data = await res.json();
-      // Try to extract JSON array from Groq's response
       let articles = [];
       try {
         const match = data.choices[0].message.content.match(/\[.*\]/s);
@@ -84,9 +98,8 @@ function Home({ genre }) {
 
   return (
     <div className="news-page">
-      <header className="app-header">
-        <h1>Latest News</h1>
-        <p className="subtitle">Stay updated with the latest headlines</p>
+      <header className="app-header weather-header">
+        <GlobalWeather />
       </header>
       <SearchBar
         value={search}
@@ -100,40 +113,7 @@ function Home({ genre }) {
           {searchError && <div className="error-container"><p>{searchError}</p></div>}
           {!searchLoading && !searchError && searchResults.length === 0 && <div className="no-news"><h2>No Results</h2><p>No news found for your search.</p></div>}
           {searchResults.map((article, idx) => (
-            <article key={idx} className="news-card">
-              <div className="news-image-container">
-                {article.image_url ? (
-                  <img
-                    src={article.image_url}
-                    alt={article.title}
-                    className="news-image"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
-                    }}
-                  />
-                ) : (
-                  <div className="no-image">No Image Available</div>
-                )}
-              </div>
-              <div className="news-content">
-                <h2 className="news-title">{article.title}</h2>
-                <p className="news-description">{article.description}</p>
-                <div className="news-meta">
-                  <span className="news-source">{article.source_id}</span>
-                  <span className="news-date">
-                    {article.pubDate ? new Date(article.pubDate).toLocaleDateString() : ''}
-                  </span>
-                </div>
-                <a
-                  href={article.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="read-more"
-                >
-                  Read More
-                </a>
-              </div>
-            </article>
+            <NewsCard key={idx} article={article} index={idx} />
           ))}
         </div>
       ) : loading ? (
@@ -143,51 +123,13 @@ function Home({ genre }) {
         </div>
       ) : (
         <div className="news-grid">
-          {Array.isArray(filteredNews) && filteredNews.length > 0 ? (
-            filteredNews.map((article, idx) => (
-              <article key={idx} className="news-card">
-                <div className="news-image-container">
-                  {article.image_url ? (
-                    <img
-                      src={article.image_url}
-                      alt={article.title}
-                      className="news-image"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
-                      }}
-                    />
-                  ) : (
-                    <div className="no-image">No Image Available</div>
-                  )}
-                </div>
-                <div className="news-content">
-                  <h2 className="news-title">{article.title}</h2>
-                  <p className="news-description">{article.description}</p>
-                  <div className="news-meta">
-                    <span className="news-source">{article.source_id}</span>
-                    <span className="news-date">
-                      {new Date(article.pubDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <a
-                    href={article.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="read-more"
-                  >
-                    Read More
-                  </a>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="no-news">
-              <h2>No News Available</h2>
-              <p>Please try again later</p>
-            </div>
-          )}
+          {filteredNews.map((article, idx) => (
+            <NewsCard key={idx} article={article} index={idx} />
+          ))}
         </div>
       )}
+      <ThemeToggle />
+      <SoundToggle onChange={setIsSoundMuted} />
     </div>
   );
 }
@@ -253,16 +195,7 @@ function Profile() {
   if (isLoggedIn) {
     return (
       <div className="profile-page centered">
-        <header className="app-header">
-          <h1>Welcome, {user?.username || 'User'}!</h1>
-          <p className="subtitle">Manage your profile and preferences</p>
-        </header>
-        <div className="profile-container card">
-          <div className="news-section">
-            <h2>Your News Feed</h2>
-            <p>Your personalized news feed will appear here.</p>
-          </div>
-        </div>
+        <UserProfile user={user} />
       </div>
     );
   }
@@ -373,7 +306,8 @@ function NotFound() {
 export default function App() {
   const [genre, setGenre] = useState('All');
   return (
-    <div className="app-container vibrant-bg">
+    <div className="app-container">
+      <div className="gradient-overlay"></div>
       <Navbar genre={genre} onGenreChange={setGenre} />
       <Routes>
         <Route path="/" element={<Home genre={genre} />} />
