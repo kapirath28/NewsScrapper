@@ -66,6 +66,7 @@ body {
   margin-bottom: 0.75rem;
   background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.7));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -170,6 +171,7 @@ body {
   margin-bottom: 12px;
   background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.8));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   transition: all 0.3s ease;
 }
