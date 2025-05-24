@@ -1,16 +1,8 @@
 import { useState, useEffect } from 'react';
-import { FiCloud, FiSun, FiCloudRain, FiWind } from 'react-icons/fi';
+import { WiCloud, WiDaySunny, WiRain, WiWindy } from 'react-icons/wi';
+import '../styles/WeatherWidget.css';
 
-const WEATHER_API_KEY = '05ed009f28c83f177065916becb734d1';
-
-const WEATHER_VIBES = {
-  sunny: { emoji: '☀️', text: "it's giving main character energy" },
-  cloudy: { emoji: '☁️', text: "cloudy with a chance of slay" },
-  rainy: { emoji: '🌧️', text: "perfect for that sad girl walk" },
-  stormy: { emoji: '⛈️', text: "mother nature's throwing shade" },
-  snowy: { emoji: '❄️', text: "winter wonderland tingz" },
-  clear: { emoji: '✨', text: "clear skies, clear mind bestie" }
-};
+const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY || '6d78abf04fc64193a0651217252405';
 
 export default function WeatherWidget() {
   const [weather, setWeather] = useState(null);
@@ -18,105 +10,74 @@ export default function WeatherWidget() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const getWeather = async () => {
+    const fetchWeather = async () => {
       try {
-        // Get user's location
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
+        const url = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=auto:ip`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-        const { latitude, longitude } = position.coords;
-        
-        const response = await fetch(
-          `http://api.weatherstack.com/current?access_key=${WEATHER_API_KEY}&query=${latitude},${longitude}`
-        );
-
-        if (!response.ok) {
-          throw new Error('Weather data fetch failed');
+        if (data.error) {
+          throw new Error(data.error.message || 'API Error');
         }
 
-        const data = await response.json();
         setWeather(data);
+        setError(null);
       } catch (err) {
-        setError("Bestie, can't get the weather rn 😭");
-        console.error('Weather fetch error:', err);
+        console.error('Failed to fetch weather:', err);
+        setError('Unable to fetch weather data');
       } finally {
         setLoading(false);
       }
     };
 
-    getWeather();
+    fetchWeather();
   }, []);
 
-  const getWeatherVibe = (description) => {
-    description = description?.toLowerCase() || '';
-    if (description.includes('sun') || description.includes('clear')) return WEATHER_VIBES.sunny;
-    if (description.includes('cloud')) return WEATHER_VIBES.cloudy;
-    if (description.includes('rain')) return WEATHER_VIBES.rainy;
-    if (description.includes('storm')) return WEATHER_VIBES.stormy;
-    if (description.includes('snow')) return WEATHER_VIBES.snowy;
-    return WEATHER_VIBES.clear;
-  };
-
-  const getWeatherIcon = (description) => {
-    description = description?.toLowerCase() || '';
-    if (description.includes('sun') || description.includes('clear')) return <FiSun />;
-    if (description.includes('rain')) return <FiCloudRain />;
-    if (description.includes('wind')) return <FiWind />;
-    return <FiCloud />;
+  const getWeatherIcon = (condition = {}) => {
+    const text = condition.text?.toLowerCase() || '';
+    if (text.includes('sun') || text.includes('clear')) return <WiDaySunny className="weather-icon sun" />;
+    if (text.includes('rain')) return <WiRain className="weather-icon rain" />;
+    if (text.includes('wind')) return <WiWindy className="weather-icon wind" />;
+    return <WiCloud className="weather-icon" />;
   };
 
   if (loading) {
     return (
-      <div className="weather-widget glass-card loading">
-        <div className="loading-pulse">
-          checking the vibes...
-        </div>
+      <div className="glass-card weather-widget">
+        <div className="loading">Loading weather... ⚡️</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="weather-widget glass-card error">
-        <p>{error}</p>
+      <div className="glass-card weather-widget">
+        <div className="error">{error}</div>
       </div>
     );
   }
 
-  if (!weather) return null;
-
-  const weatherVibe = getWeatherVibe(weather.current?.weather_descriptions?.[0]);
+  if (!weather?.current) {
+    return (
+      <div className="glass-card weather-widget">
+        <div className="error">Weather data unavailable 😢</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="weather-widget glass-card">
-      <div className="weather-header">
-        <div className="weather-icon">
-          {getWeatherIcon(weather.current?.weather_descriptions?.[0])}
+    <div className="glass-card weather-widget">
+      <div className="weather-content">
+        <div className="weather-icon-container">
+          {getWeatherIcon(weather.current.condition)}
+          <span className="temperature">{Math.round(weather.current.temp_c)}°C</span>
         </div>
-        <div className="weather-temp">
-          <span className="temp-number">{weather.current?.temperature}°</span>
-          <span className="temp-unit">C</span>
-        </div>
-      </div>
-      
-      <div className="weather-details">
-        <div className="weather-location">
-          {weather.location?.name}, {weather.location?.country}
-        </div>
-        <div className="weather-description">
-          {weatherVibe.emoji} {weatherVibe.text}
-        </div>
-      </div>
-
-      <div className="weather-stats">
-        <div className="stat">
-          <FiWind />
-          <span>{weather.current?.wind_speed} km/h winds</span>
-        </div>
-        <div className="stat">
-          <span>💧</span>
-          <span>{weather.current?.humidity}% humidity</span>
+        <div className="weather-details">
+          <p className="weather-message">✨ {weather.current.condition.text.toLowerCase()}, clear mind bestie</p>
+          <div className="weather-stats">
+            <span className="wind">{weather.current.wind_kph} km/h winds</span>
+            <span className="humidity">{weather.current.humidity}% humidity</span>
+          </div>
         </div>
       </div>
     </div>
