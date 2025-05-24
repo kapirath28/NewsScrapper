@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiSun, FiCloud, FiCloudRain, FiWind } from 'react-icons/fi';
 
-const WEATHER_API_KEY = import.meta.env.VITE_WEATHERSTACK_API_KEY || '05ed009f28c83f177065916becb734d1';
+const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY || '6d78abf04fc64193a0651217252405';
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 const CITIES = [
@@ -13,20 +13,10 @@ const CITIES = [
 ];
 
 export default function GlobalWeather() {
-  const [weatherData, setWeatherData] = useState(() => {
-    const cached = localStorage.getItem('weatherData');
-    if (cached) {
-      const { data, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < CACHE_DURATION) {
-        return data;
-      }
-    }
-    return {};
-  });
+  const [weatherData, setWeatherData] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
   const [lastFetchTime, setLastFetchTime] = useState(0);
 
   useEffect(() => {
@@ -38,42 +28,19 @@ export default function GlobalWeather() {
       }
 
       try {
-        // Try HTTPS first
-        const url = `https://api.weatherstack.com/current?access_key=${WEATHER_API_KEY}&query=${city.name}`;
+        const url = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${city.name}`;
         const res = await fetch(url);
         const data = await res.json();
         setLastFetchTime(Date.now());
 
-        if (data.success === false) {
-          if (data.error?.code === 106) {
-            throw new Error('RATE_LIMIT');
-          }
-          throw new Error(data.error?.info || 'API Error');
+        if (data.error) {
+          throw new Error(data.error.message || 'API Error');
         }
 
         return data;
       } catch (err) {
-        if (err.message === 'RATE_LIMIT') {
-          throw err;
-        }
-        // If HTTPS fails, try HTTP
-        try {
-          const httpUrl = `http://api.weatherstack.com/current?access_key=${WEATHER_API_KEY}&query=${city.name}`;
-          const res = await fetch(httpUrl);
-          const data = await res.json();
-          setLastFetchTime(Date.now());
-
-          if (data.success === false) {
-            if (data.error?.code === 106) {
-              throw new Error('RATE_LIMIT');
-            }
-            throw new Error(data.error?.info || 'API Error');
-          }
-
-          return data;
-        } catch (httpErr) {
-          throw httpErr;
-        }
+        console.error(`Failed to fetch weather for ${city.name}:`, err);
+        throw err;
       }
     };
 
@@ -98,16 +65,9 @@ export default function GlobalWeather() {
             const result = await fetchWeather(city);
             weatherMap[city.name] = result;
           } catch (err) {
-            if (err.message === 'RATE_LIMIT') {
-              if (retryCount < 3) {
-                setRetryCount(prev => prev + 1);
-                // Exponential backoff
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount + 1) * 1000));
-                continue;
-              }
-              throw new Error('Rate limit reached. Please try again later.');
-            }
-            throw err;
+            console.error(`Skipping ${city.name} due to error:`, err);
+            // Continue with other cities even if one fails
+            continue;
           }
         }
         
@@ -119,10 +79,9 @@ export default function GlobalWeather() {
         
         setWeatherData(weatherMap);
         setError(null);
-        setRetryCount(0);
       } catch (err) {
         console.error('Failed to fetch weather data:', err);
-        setError(err.message || 'Unable to fetch weather data. Please check your API key and try again.');
+        setError('Unable to fetch weather data. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -136,13 +95,13 @@ export default function GlobalWeather() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [retryCount, lastFetchTime]);
+  }, [lastFetchTime]);
 
-  const getWeatherIcon = (description = '') => {
-    description = description?.toLowerCase() || '';
-    if (description.includes('sun') || description.includes('clear')) return <FiSun className="weather-icon sun" />;
-    if (description.includes('rain')) return <FiCloudRain className="weather-icon rain" />;
-    if (description.includes('wind')) return <FiWind className="weather-icon wind" />;
+  const getWeatherIcon = (condition = {}) => {
+    const text = condition.text?.toLowerCase() || '';
+    if (text.includes('sun') || text.includes('clear')) return <FiSun className="weather-icon sun" />;
+    if (text.includes('rain')) return <FiCloudRain className="weather-icon rain" />;
+    if (text.includes('wind')) return <FiWind className="weather-icon wind" />;
     return <FiCloud className="weather-icon" />;
   };
 
@@ -159,10 +118,6 @@ export default function GlobalWeather() {
       <div className="global-weather-container">
         <div className="error-message">
           {error}
-          <div className="error-details">
-            Please make sure your WeatherStack API key is valid and has access to HTTPS endpoints.
-            {retryCount > 0 && <div>Retrying... ({retryCount}/3)</div>}
-          </div>
         </div>
       </div>
     );
@@ -184,15 +139,15 @@ export default function GlobalWeather() {
       <div className="weather-card">
         <div className="city-name">
           <span className="city-emoji">{currentCity.emoji}</span>
-          {currentCity.name}
+          {currentWeather.location.name}, {currentWeather.location.country}
         </div>
         <div className="weather-info">
-          {getWeatherIcon(currentWeather.current.weather_descriptions?.[0])}
+          {getWeatherIcon(currentWeather.current.condition)}
           <span className="temperature">
-            {currentWeather.current.temperature}°C
+            {currentWeather.current.temp_c}°C
           </span>
           <span className="description">
-            {currentWeather.current.weather_descriptions?.[0]}
+            {currentWeather.current.condition.text}
           </span>
         </div>
       </div>
