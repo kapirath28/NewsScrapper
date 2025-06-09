@@ -11,7 +11,6 @@ const server = http.createServer(app);
 console.log('API Key length:', process.env.API_KEY?.length);
 console.log('API Key first 4 chars:', process.env.API_KEY?.substring(0, 4));
 
-let news;
 
 async function getNews(){
     try {
@@ -41,6 +40,11 @@ const io = new Server(server, {
     }
 })
 
+// Error handling for socket.io
+io.on('error', (error) => {
+    console.error('Socket.IO error:', error);
+});
+
 io.on('connection', async (socket) => {
     try {
         await getNews();
@@ -49,6 +53,11 @@ io.on('connection', async (socket) => {
         socket.emit('error', { message: error.message });
     }
 })
+
+// Error handling for the server
+server.on('error', (error) => {
+    console.error('Server error:', error);
+});
 
 app.use(cors());
 

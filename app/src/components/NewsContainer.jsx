@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import Button from "./Button"
+import Newscard from "./Newscard";
 
 export default function NewsContainer({news, Genre}){
     const scrollRef = useRef();
@@ -13,6 +14,11 @@ export default function NewsContainer({news, Genre}){
             container.scrollLeft += scrollAmount;
         }
     };
+
+    const handleReadMore = (url) => {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
     return <div style={{ position: "relative" }}>
       <div>{Genre}</div>
       {/* Scroll Buttons */}
@@ -33,7 +39,14 @@ export default function NewsContainer({news, Genre}){
             style={{ width: "20%", minWidth: "200px", flexShrink: 0 }}
           >
             {n.image_url && (
-              <img src={n.image_url} className="card-img-top" alt="news" />
+              <img 
+                src={n.image_url} 
+                className="card-img-top" 
+                alt="news"
+                onError={(e) => {
+                  e.target.src = 'https://placehold.co/400x300/333333/FFFFFF/png?text=No+Image';
+                }}
+              />
             )}
             <div className="card-body">
               <p className="card-text">{n.title}</p>

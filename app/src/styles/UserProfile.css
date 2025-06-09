@@ -1,0 +1,310 @@
+.user-profile-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Glass Card Effect */
+.glass-card {
+  background: rgba(25, 25, 25, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 0, 255, 0.2),
+    0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+/* Profile Header */
+.profile-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.profile-avatar {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.avatar-item {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(-50%); }
+  50% { transform: translateY(-10px) translateX(-50%); }
+}
+
+.profile-info h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Personality Badge */
+.personality-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-top: 1rem;
+}
+
+.personality-badge h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.traits {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.trait-tag {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.stats-right {
+  display: grid;
+  gap: 2rem;
+}
+
+.vibe-stats {
+  display: grid;
+  gap: 1rem;
+}
+
+.stat-bar {
+  display: grid;
+  grid-template-columns: 100px 1fr 50px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-container {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  border-radius: 4px;
+  transition: width 1s ease-out;
+}
+
+/* Cap Score */
+.cap-score {
+  text-align: center;
+}
+
+.score-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 8px solid #ff00ff;
+  margin: 0 auto 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 0, 255, 0.1);
+}
+
+.score {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Hot Takes */
+.takes-input {
+  margin-bottom: 1.5rem;
+}
+
+.takes-input input {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+}
+
+.takes-input input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.takes-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.take-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.take-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.take-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Theme Options */
+.theme-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.theme-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-btn.active {
+  background: linear-gradient(45deg, #ff00ff, #00ffff);
+  color: black;
+  font-weight: bold;
+}
+
+/* Achievements */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.achievement {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.achievement.unlocked {
+  background: linear-gradient(45deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.achievement-icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.achievement-req {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Theme Variations */
+.theme-cyberpunk {
+  --theme-gradient: linear-gradient(45deg, #ff00ff, #00ffff);
+  --theme-accent: #ff00ff;
+}
+
+.theme-y2k {
+  --theme-gradient: linear-gradient(45deg, #ff6b6b, #ffd93d);
+  --theme-accent: #ff6b6b;
+}
+
+.theme-minimalist {
+  --theme-gradient: linear-gradient(45deg, #ffffff, #cccccc);
+  --theme-accent: #ffffff;
+}
+
+.theme-dark-academia {
+  --theme-gradient: linear-gradient(45deg, #8b4513, #d2691e);
+  --theme-accent: #8b4513;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-header {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    margin: 0 auto;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-right {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+} 
